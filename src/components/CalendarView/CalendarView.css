@@ -1,0 +1,12 @@
+/* src/components/CalendarView.css */
+
+.calendar-view {
+  position: relative;
+}
+
+.configuration-button {
+  color: #b0b0b0; /* Light silver color */
+  &:hover {
+    color: #4c51bf; /* Indigo hover color */
+  }
+}

@@ -1,0 +1,43 @@
+.modal-container {
+  overflow: hidden;
+  position: relative;
+  min-height: 620px; 
+  height: auto; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; 
+}
+
+.event-list {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  width: 100%; 
+  padding: 16px; 
+}
+
+.event-form {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  position: absolute;
+  width: 100%;
+  background-color: white; 
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  padding: 1rem; 
+  width: 100%; 
+}
+
+.translate-x-full {
+  transform: translateX(100%);
+}
+
+.translate-x-0 {
+  transform: translateX(0);
+}
+
+.opacity-0 {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opacity-100 {
+  opacity: 1;
+}

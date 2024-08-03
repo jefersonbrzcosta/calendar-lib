@@ -1,25 +1,33 @@
-// src/components/EventForm.tsx
 import React, { useState, useEffect } from 'react';
 import { useCalendarContext } from '../context/CalendarContext';
 import { CalendarEvent } from '../types/calendar';
-import { Form, Input, Button, DatePicker, Modal, message } from 'antd';
+import { Form, Input, Button, TimePicker, message } from 'antd';
 import moment, { Moment } from 'moment';
+import { format } from 'date-fns';
 
-const { RangePicker } = DatePicker;
+const { RangePicker } = TimePicker;
 
 interface EventFormProps {
   onClose: () => void;
   existingEvent?: CalendarEvent;
+  onBackToList: () => void;
+  selectedDate: Date; 
 }
 
-const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
+const EventForm: React.FC<EventFormProps> = ({
+  existingEvent,
+  onBackToList,
+  selectedDate,
+}) => {
   const { dispatch, state } = useCalendarContext();
   const [form] = Form.useForm();
 
-  // Initialize the date range based on existing or new event
+  const initialStart = moment(selectedDate).startOf('day').add(9, 'hours');
+  const initialEnd = moment(selectedDate).startOf('day').add(10, 'hours');
+
   const [range, setRange] = useState<Moment[]>([
-    existingEvent ? moment(existingEvent.start) : moment().startOf('day').add(9, 'hours'),
-    existingEvent ? moment(existingEvent.end) : moment().startOf('day').add(10, 'hours'),
+    existingEvent ? moment(existingEvent.start) : initialStart,
+    existingEvent ? moment(existingEvent.end) : initialEnd,
   ]);
 
   const [eventData, setEventData] = useState<CalendarEvent>({
@@ -34,36 +42,42 @@ const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
   });
 
   useEffect(() => {
-    // Initialize form with event data or defaults
     if (existingEvent) {
-      setEventData(existingEvent);
-      setRange([moment(existingEvent.start), moment(existingEvent.end)]);
+      form.setFieldsValue({
+        title: existingEvent.title,
+        description: existingEvent.description,
+        range: [moment(existingEvent.start), moment(existingEvent.end)],
+        location: existingEvent.location,
+        guests: existingEvent.guests,
+        color: existingEvent.color,
+      });
+    } else {
+
+      form.setFieldsValue({
+        title: eventData.title,
+        description: eventData.description,
+        range: [range[0], range[1]],
+        location: eventData.location,
+        guests: eventData.guests,
+        color: eventData.color,
+      });
     }
-    form.setFieldsValue({
-      title: eventData.title,
-      description: eventData.description,
-      range: range,
-      location: eventData.location,
-      guests: eventData.guests,
-      color: eventData.color,
-    });
-  }, [existingEvent, form, eventData, range]);
+  }, [existingEvent, form, range, eventData]);
 
   const handleFormChange = (changedValues: any) => {
     setEventData({ ...eventData, ...changedValues });
   };
 
   const handleSubmit = () => {
-    const { availableDays, startHour, endHour } = state.settings;
-    const [start, end] = range; // Use range state for validation
+    const { availableDays, startHour, endHour, allowOverlapping } = state.settings;
+    const [start, end] = range; 
 
-    // Validate available days
+
     if (!availableDays.includes(start.day()) || !availableDays.includes(end.day())) {
       message.error('Event must be scheduled on available days');
       return;
     }
 
-    // Validate available hours
     const startHourTime = moment(startHour, 'HH:mm');
     const endHourTime = moment(endHour, 'HH:mm');
 
@@ -72,17 +86,40 @@ const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
       return;
     }
 
-    // Ensure the end date/time is after the start date/time
-    if (end.isSameOrBefore(start)) {
+    if (!allowOverlapping) {
+      const overlappingEvent = state.events.find((event: any) => {
+        const eventStart = moment(event.start);
+        const eventEnd = moment(event.end);
+        return (
+          eventStart.isSame(selectedDate, 'day') &&
+          ((start.isBetween(eventStart, eventEnd, undefined, '[)') || end.isBetween(eventStart, eventEnd, undefined, '(]')) ||
+          start.isSame(eventStart) || end.isSame(eventEnd))
+        );
+      });
+
+      if (overlappingEvent) {
+        message.error('This time slot is already booked. Please choose another time.');
+        return;
+      }
+    }
+
+    if (!end.isAfter(start)) {
       message.error('End time must be after start time');
       return;
     }
 
-    // Update event data with the correct times from range
     const updatedEventData = {
       ...eventData,
-      start: start.toISOString(),
-      end: end.toISOString(),
+      start: moment(selectedDate)
+        .hour(start.hour())
+        .minute(start.minute())
+        .second(0)
+        .toISOString(), 
+      end: moment(selectedDate)
+        .hour(end.hour())
+        .minute(end.minute())
+        .second(0)
+        .toISOString(),
     };
 
     if (existingEvent) {
@@ -90,36 +127,26 @@ const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
     } else {
       dispatch({ type: 'ADD_EVENT', payload: updatedEventData });
     }
-    onClose();
+
+    form.resetFields();
+    setRange([initialStart, initialEnd]);
+    setEventData({
+      id: Date.now(),
+      title: '',
+      description: '',
+      start: initialStart.toISOString(),
+      end: initialEnd.toISOString(),
+      location: '',
+      guests: '',
+      color: '#0000ff',
+    });
+
+    message.success('Event scheduled successfully.');
   };
 
-  const disabledDate = (current: Moment) => {
-    return current && current < moment().startOf('day');
-  };
-
-  const roundToNearest30Minutes = (time: Moment): Moment => {
-    const minutes = time.minutes();
-    const remainder = minutes % 30;
-    if (remainder !== 0) {
-      return time.clone().add(30 - remainder, 'minutes').startOf('minute');
-    }
-    return time;
-  };
 
   return (
-    <Modal
-      visible={true}
-      title={existingEvent ? 'Edit Event' : 'Create Event'}
-      onCancel={onClose}
-      footer={[
-        <Button key="cancel" onClick={onClose}>
-          Cancel
-        </Button>,
-        <Button key="submit" type="primary" onClick={form.submit}>
-          {existingEvent ? 'Update Event' : 'Save Event'}
-        </Button>,
-      ]}
-    >
+    <div className="px-4 py-6">
       <Form
         form={form}
         layout="vertical"
@@ -146,26 +173,33 @@ const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
         </Form.Item>
         <Form.Item
           name="range"
-          label="Event Date & Time"
-          rules={[{ required: true, message: 'Please select a date range' }]}
+          label={`Event Time for ${format(selectedDate, 'MMMM d, yyyy')}`}
+          rules={[{ required: true, message: 'Please select a time range' }]}
         >
           <RangePicker
-            disabledDate={disabledDate}
-            showTime={{
-              format: 'HH:mm',
-              minuteStep: 30,
-            }}
-            format="YYYY-MM-DD HH:mm"
-            value={range} // Controlled component
-            onChange={(dates) => {
-              if (dates && dates.length === 2) {
-                const roundedStart = roundToNearest30Minutes(dates[0]!);
-                const roundedEnd = roundToNearest30Minutes(dates[1]!);
-                setRange([roundedStart, roundedEnd]);
+            disabledTime={() => ({
+              disabledHours: () => {
+                const hours = [];
+                const startHour = parseInt(state.settings.startHour.split(':')[0], 10);
+                const endHour = parseInt(state.settings.endHour.split(':')[0], 10);
+                for (let i = 0; i < 24; i++) {
+                  if (i < startHour || i >= endHour) {
+                    hours.push(i);
+                  }
+                }
+                return hours;
+              },
+            })}
+            format="HH:mm"
+            minuteStep={30}
+            value={range}
+            onChange={(times) => {
+              if (times && times.length === 2) {
+                setRange([times[0]!, times[1]!]);
                 setEventData({
                   ...eventData,
-                  start: roundedStart.toISOString(),
-                  end: roundedEnd.toISOString(),
+                  start: times[0]!.toISOString(),
+                  end: times[1]!.toISOString(),
                 });
               }
             }}
@@ -180,8 +214,16 @@ const EventForm: React.FC<EventFormProps> = ({ onClose, existingEvent }) => {
         <Form.Item name="color" label="Event Color">
           <Input type="color" />
         </Form.Item>
+        <div className="flex justify-end space-x-3">
+          <Button key="cancel" onClick={onBackToList}>
+            Cancel
+          </Button>
+          <Button key="submit" type="primary" onClick={form.submit}>
+            {existingEvent ? 'Update Event' : 'Save Event'}
+          </Button>
+        </div>
       </Form>
-    </Modal>
+    </div>
   );
 };
 
