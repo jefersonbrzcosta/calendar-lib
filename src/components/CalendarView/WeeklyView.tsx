@@ -12,7 +12,7 @@ import {
 import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
-import { getCurrentTimePosition, hours } from '../utils';
+import { getCurrentTimePosition, getEventPosition, hours } from '../utils';
 import AnimationWrapper from './shared/AnimationWrapper';
 
 const WeeklyView: React.FC = () => {
@@ -22,7 +22,7 @@ const WeeklyView: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null); // Reference to the container
 
-  const { mainColor } = state.settings; // Fetch mainColor from context
+  const { mainColor, secondColor } = state.settings; // Fetch mainColor from context
 
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
@@ -75,20 +75,6 @@ const WeeklyView: React.FC = () => {
     });
   });
 
-  const getEventPosition = (eventStart: Date, eventEnd: Date) => {
-    const totalMinutesInDay = 24 * 60;
-    const startMinutes = eventStart.getHours() * 59 + eventStart.getMinutes() + 27;
-    const endMinutes = eventEnd.getHours() * 59 + eventEnd.getMinutes() + 27;
-
-    const top = (startMinutes / totalMinutesInDay) * 100;
-    const height = ((endMinutes - startMinutes) / totalMinutesInDay) * 100;
-
-    return {
-      top: `${top}%`,
-      height: `${height}%`,
-    };
-  };
-
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
@@ -120,12 +106,15 @@ const WeeklyView: React.FC = () => {
               return (
                 <div
                   key={dayIndex}
-                  className={`flex flex-col space-y-0 relative border-l border-gray-200 bg-white`}
+                  className={`flex flex-col space-y-0 relative border-l border-gray-500 bg-white`}
+                  style={{
+                    borderLeft: dayIndex !== 0 ? `1px solid ${secondColor}` : ""
+                  }}
                 >
                   <div
                     className={`text-center text-sm font-semibold h-12 pt-3 text-white`}
                     style={{
-                      backgroundColor: isToday(day) ? mainColor : '#a0aec0', // Use mainColor here
+                      backgroundColor: isToday(day) ? mainColor : secondColor, // Use mainColor here
                     }}
                   >
                     {format(day, 'EEE d')}
@@ -135,7 +124,7 @@ const WeeklyView: React.FC = () => {
                   {hours.map((_, index) => (
                     <div
                       key={index}
-                      className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
+                      className="border-t border-gray-200 h-12 cursor-pointer hover:bg-gray-100"
                       onClick={() => handleDayClick(day)}
                     >
                       {format(currentDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && isToday(currentDate) && (

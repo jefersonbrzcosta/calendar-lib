@@ -10,8 +10,8 @@ const initialState: CalendarState = {
   view: 'month',
   currentDate: new Date(),
   settings: {
-    mainColor: "gray",
-    secondColor: "red",
+    mainColor: "blue",
+    secondColor: "lightblue",
     availableDays: [1, 2, 3, 4, 5, 6, 7],
     startHour: '08:00',
     endHour: '18:00',
@@ -51,7 +51,7 @@ const CalendarContext = createContext<any>({
 export const CalendarProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(calendarReducer, {
     ...initialState,
-    settings: { ...initialState.settings }, // Merge custom settings with initialState
+    settings: { ...initialState.settings },
   });
 
   return (

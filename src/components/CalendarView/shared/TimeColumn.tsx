@@ -10,8 +10,6 @@ export const TimeColumn: React.FC<TimeColumnProps> = ({ startHour = 0, endHour =
   const { state } = useCalendarContext();
   const { mainColor } = state.settings;
 
-  console.log("mainColor", mainColor)
-
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => `${i + startHour}:00`);
 
   return (
@@ -20,7 +18,7 @@ export const TimeColumn: React.FC<TimeColumnProps> = ({ startHour = 0, endHour =
       {hours.map((hour, index) => (
         <div
           key={index}
-          className="text-sm text-white h-24 flex items-center justify-center border-b border-gray-200"
+          className={`text-sm text-white h-12 flex items-center justify-center border-b border-gray-200`}
           style={{ backgroundColor: mainColor }}
         >
           {hour}

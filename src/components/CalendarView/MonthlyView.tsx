@@ -167,7 +167,7 @@ const MonthlyView: React.FC = () => {
                 className={`flex flex-col items-center justify-center h-24 cursor-pointer rounded-lg ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'} ${
                   isAvailableDay ? '' : 'opacity-50 pointer-events-none'
                 }`}
-                style={isToday(day) ? { color: "white", backgroundColor: mainColor} : { color: mainColor}}
+                style={isToday(day) ? { color: "white", backgroundColor: secondColor} : { color: mainColor}}
                 onClick={() => isAvailableDay && handleDayClick(day)}
               >
                 <div className="text-xl font-semibold">{format(day, 'd')}</div>

@@ -4,7 +4,7 @@ import { format, isSameDay, addDays, isToday } from 'date-fns';
 import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
-import { getCurrentTimePosition, hours } from '../utils';
+import { getCurrentTimePosition, getEventPosition, hours } from '../utils';
 import AnimationWrapper from './shared/AnimationWrapper';
 
 const DayView: React.FC = () => {
@@ -46,21 +46,6 @@ const DayView: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const HOUR_HEIGHT = 96; // Height of each hour slot in pixels
-
-  const getEventPosition = (eventStart: Date, eventEnd: Date) => {
-    const startMinutes = eventStart.getHours() * 60 + eventStart.getMinutes();
-    const endMinutes = eventEnd.getHours() * 60 + eventEnd.getMinutes();
-  
-    const top = (startMinutes * HOUR_HEIGHT) / 60; // Convert start time to pixels
-    const height = ((endMinutes - startMinutes) * HOUR_HEIGHT) / 60; // Convert duration to pixels
-  
-    return {
-      top: `${top + 49}px`,
-      height: `${height}px`,
-    };
-  };
-  
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
@@ -103,7 +88,7 @@ const DayView: React.FC = () => {
               {hours.map((_, index) => (
                 <div
                   key={index}
-                  className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
+                  className="border-t border-gray-200 h-12 cursor-pointer hover:bg-gray-100"
                   onClick={() => handleTimeSlotClick(currentDate)}
                 ></div>
               ))}

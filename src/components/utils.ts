@@ -5,8 +5,25 @@ export const getCurrentTimePosition = () => {
   const hour = now.getHours();
   const minutes = now.getMinutes();
 
-  return (hour * 60 + minutes) / (24 * 60) * 100 + 2;
+  return (hour * 60 + minutes) / (24 * 60) * 100 + 1.4;
 };
+
+
+
+export const getEventPosition = (eventStart: Date, eventEnd: Date) => {
+  const HOUR_HEIGHT = 48; // Height of each hour slot in pixels
+  const startMinutes = eventStart.getHours() * 60 + eventStart.getMinutes();
+  const endMinutes = eventEnd.getHours() * 60 + eventEnd.getMinutes();
+
+  const top = (startMinutes * HOUR_HEIGHT) / 60; // Convert start time to pixels
+  const height = ((endMinutes - startMinutes) * HOUR_HEIGHT) / 60; // Convert duration to pixels
+
+  return {
+    top: `${top + 49}px`,
+    height: `${height}px`,
+  };
+};
+
 
 
 export const mockEvents = [
