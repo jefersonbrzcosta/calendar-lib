@@ -11,30 +11,35 @@ interface NavigationHeaderProps {
 
 export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   title,
-  calendarColor,
+  calendarColor = '#4F46E5', // Default to a color if not provided
   onPrev,
   onNext,
   onToday,
 }) => {
   return (
     <div className="flex justify-between items-center mb-3">
-      <div className={`text-2xl font-bold text-${calendarColor}-600`}>{title}</div>
+      <div className="text-2xl font-bold" style={{ color: calendarColor }}>
+        {title}
+      </div>
       <div className="flex items-center space-x-3">
         <Button
           onClick={onPrev}
-          className={`text-lg text-${calendarColor}-600 hover:text-${calendarColor}-700`}
+          style={{ color: calendarColor }}
+          className="text-lg hover:opacity-80"
         >
           &lt;
         </Button>
         <Button
           onClick={onNext}
-          className={`text-lg text-${calendarColor}-600 hover:text-${calendarColor}-700`}
+          style={{ color: calendarColor }}
+          className="text-lg hover:opacity-80"
         >
           &gt;
         </Button>
         <Button
           onClick={onToday}
-          className={`text-lg text-${calendarColor}-600 hover:text-${calendarColor}-700`}
+          style={{ color: calendarColor }}
+          className="text-lg hover:opacity-80"
         >
           Today
         </Button>

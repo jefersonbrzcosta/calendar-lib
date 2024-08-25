@@ -7,14 +7,14 @@ import { NavigationHeader } from './shared/NavigationHeader';
 import { getCurrentTimePosition, hours } from '../utils';
 import AnimationWrapper from './shared/AnimationWrapper';
 
-
-
 const DayView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
   const [currentDate, setCurrentDate] = useState(state.currentDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const { mainColor } = state.settings; // Fetch mainColor from context
 
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
@@ -61,7 +61,6 @@ const DayView: React.FC = () => {
     };
   };
   
-
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
@@ -82,60 +81,63 @@ const DayView: React.FC = () => {
           onPrev={() => handleDayChange(-1)}
           onNext={() => handleDayChange(1)}
           onToday={handleGoToToday}
+          calendarColor={mainColor}
         />
 
         {/* Day View Grid */}
-        <div className='flex row'>
+        <div className="flex row">
           <TimeColumn />
           <div className="grid grid-cols-1 gap-2 w-10/12">
-          {/* Day Column */}
-          <div className="flex flex-col space-y-0 relative border-l border-gray-200 bg-white">
-            <div
-              className={`text-center text-md font-semibold h-12 pt-3 ${
-                isToday(currentDate) ? 'text-white bg-indigo-600' : 'text-white bg-gray-400'
-              }`}
-            >
-              {format(currentDate, 'eeee')}
-            </div>
-            {/* Time Slots */}
-            {hours.map((_, index) => (
+            {/* Day Column */}
+            <div className="flex flex-col space-y-0 relative border-l border-gray-200 bg-white">
               <div
-                key={index}
-                className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
-                onClick={() => handleTimeSlotClick(currentDate)}
-              ></div>
-            ))}
-
-            {/* Render Events */}
-            {eventsForSelectedDate.map((event: any, eventIndex: any) => {
-              const eventStart = new Date(event.start);
-              const eventEnd = new Date(event.end);
-              const position = getEventPosition(eventStart, eventEnd);
-
-              return (
+                className="text-center text-md font-semibold h-12 pt-3"
+                style={{
+                  backgroundColor: isToday(currentDate) ? mainColor : '#a0aec0', // Use mainColor
+                  color: 'white',
+                }}
+              >
+                {format(currentDate, 'eeee')}
+              </div>
+              {/* Time Slots */}
+              {hours.map((_, index) => (
                 <div
-                  key={eventIndex}
-                  className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2"
-                  style={{
-                    backgroundColor: event.color,
-                    top: position.top,
-                    height: position.height,
-                  }}
-                >
-                  <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
-                  <div className="text-xs">{event.title}</div>
-                </div>
-              );
-            })}
+                  key={index}
+                  className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleTimeSlotClick(currentDate)}
+                ></div>
+              ))}
 
-            {/* Render Current Time Line */}
-            {isToday(currentDate) && (
-              <div
-                className="absolute left-0 right-0 h-0.5 bg-red-500"
-                style={{ top: `${getCurrentTimePosition()}%` }}
-              />
-            )}
-          </div>
+              {/* Render Events */}
+              {eventsForSelectedDate.map((event: any, eventIndex: any) => {
+                const eventStart = new Date(event.start);
+                const eventEnd = new Date(event.end);
+                const position = getEventPosition(eventStart, eventEnd);
+
+                return (
+                  <div
+                    key={eventIndex}
+                    className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2"
+                    style={{
+                      backgroundColor: event.color,
+                      top: position.top,
+                      height: position.height,
+                    }}
+                  >
+                    <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
+                    <div className="text-xs">{event.title}</div>
+                  </div>
+                );
+              })}
+
+              {/* Render Current Time Line */}
+              {isToday(currentDate) && (
+                <div
+                  className="absolute left-0 right-0 h-0.5 bg-red-500"
+                  style={{ top: `${getCurrentTimePosition()}%` }}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

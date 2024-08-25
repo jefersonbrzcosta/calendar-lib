@@ -22,6 +22,8 @@ const WeeklyView: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null); // Reference to the container
 
+  const { mainColor } = state.settings; // Fetch mainColor from context
+
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
       setCurrentDate(state.currentDate);
@@ -87,7 +89,6 @@ const WeeklyView: React.FC = () => {
     };
   };
 
-
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
@@ -108,67 +109,70 @@ const WeeklyView: React.FC = () => {
           onPrev={() => handleWeekChange(-1)}
           onNext={() => handleWeekChange(1)}
           onToday={handleGoToToday}
+          calendarColor={mainColor}
         />
-        <div className='flex row'>
-              <TimeColumn />
-              <div className="grid grid-cols-7 gap-2 w-10/12">
-                {/* Weekday Columns */}
-                {weekDays.map((day, dayIndex) => {
-                  const dayEvents = eventsByDay[format(day, 'yyyy-MM-dd')] || [];
-                  return (
-                    <div
-                      key={dayIndex}
-                      className={`flex flex-col space-y-0 relative border-l border-gray-200 bg-white`}
-                    >
-                      <div
-                        className={`text-center text-sm font-semibold h-12 pt-3 text-white ${
-                          isToday(day) ? ' bg-indigo-600' : 'bg-gray-400'
-                        }`}
-                      >
-                        {format(day, 'EEE d')}
-                      </div>
+        <div className="flex row">
+          <TimeColumn />
+          <div className="grid grid-cols-7 gap-2 w-10/12">
+            {/* Weekday Columns */}
+            {weekDays.map((day, dayIndex) => {
+              const dayEvents = eventsByDay[format(day, 'yyyy-MM-dd')] || [];
+              return (
+                <div
+                  key={dayIndex}
+                  className={`flex flex-col space-y-0 relative border-l border-gray-200 bg-white`}
+                >
+                  <div
+                    className={`text-center text-sm font-semibold h-12 pt-3 text-white`}
+                    style={{
+                      backgroundColor: isToday(day) ? mainColor : '#a0aec0', // Use mainColor here
+                    }}
+                  >
+                    {format(day, 'EEE d')}
+                  </div>
 
-                      {/* Time Slots */}
-                      {hours.map((_, index) => (
+                  {/* Time Slots */}
+                  {hours.map((_, index) => (
+                    <div
+                      key={index}
+                      className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleDayClick(day)}
+                    >
+                      {format(currentDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && isToday(currentDate) && (
                         <div
-                          key={index}
-                          className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
-                          onClick={() => handleDayClick(day)}
-                        >
-                          {format(currentDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && isToday(currentDate) && <div
                           className="absolute left-0 right-0 h-0.5 bg-red-500"
                           style={{ top: `${getCurrentTimePosition()}%` }}
-                        />}
-                        </div>
-                      ))}
-
-                      {/* Render Events */}
-                      {dayEvents.map((event, eventIndex) => {
-                        const eventStart = new Date(event.start);
-                        const eventEnd = new Date(event.end);
-                        const position = getEventPosition(eventStart, eventEnd);
-
-                        return (
-                          <div
-                            key={eventIndex}
-                            className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2"
-                            style={{
-                              backgroundColor: event.color,
-                              top: position.top,
-                              height: position.height,
-                            }}
-                          >
-                            <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
-                            <div className="text-xs">{event.title}</div>
-                          </div>
-                        );
-                      })}
-
+                        />
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-              </div>
+                  ))}
+
+                  {/* Render Events */}
+                  {dayEvents.map((event, eventIndex) => {
+                    const eventStart = new Date(event.start);
+                    const eventEnd = new Date(event.end);
+                    const position = getEventPosition(eventStart, eventEnd);
+
+                    return (
+                      <div
+                        key={eventIndex}
+                        className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2"
+                        style={{
+                          backgroundColor: event.color,
+                          top: position.top,
+                          height: position.height,
+                        }}
+                      >
+                        <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
+                        <div className="text-xs">{event.title}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {selectedDate && (

@@ -9,8 +9,9 @@ const initialState: CalendarState = {
   events: mockEvents,
   view: 'month',
   currentDate: new Date(),
-  calendarColor: "indigo",
   settings: {
+    mainColor: "gray",
+    secondColor: "red",
     availableDays: [1, 2, 3, 4, 5, 6, 7],
     startHour: '08:00',
     endHour: '18:00',
@@ -48,7 +49,10 @@ const CalendarContext = createContext<any>({
 });
 
 export const CalendarProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(calendarReducer, initialState);
+  const [state, dispatch] = useReducer(calendarReducer, {
+    ...initialState,
+    settings: { ...initialState.settings }, // Merge custom settings with initialState
+  });
 
   return (
     <CalendarContext.Provider value={{ state, dispatch }}>

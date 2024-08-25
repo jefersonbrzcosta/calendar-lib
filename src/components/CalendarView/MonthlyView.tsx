@@ -9,18 +9,19 @@ import {
   startOfWeek,
   endOfWeek,
   isSameDay,
-  isToday as checkIfToday,
   setMonth,
+  isToday,
 } from 'date-fns';
+import { Button } from 'antd';
 import EventListModal from '../EventListModal';
-import { NavigationHeader } from './shared/NavigationHeader';
-import AnimationWrapper from './shared/AnimationWrapper';
 
-const MontlyView: React.FC = () => {
+const MonthlyView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
   const [currentDate, setCurrentDate] = useState(state.currentDate);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const { mainColor, secondColor } = state.settings; // Fetch mainColor from context
 
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
@@ -52,10 +53,9 @@ const MontlyView: React.FC = () => {
   };
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
+
   const startMonth = startOfMonth(currentDate);
   const endMonth = endOfMonth(currentDate);
-
 
   const startWeek = startOfWeek(startMonth);
   const endWeek = endOfWeek(endMonth);
@@ -64,7 +64,6 @@ const MontlyView: React.FC = () => {
     start: startWeek,
     end: endWeek,
   });
-
 
   const eventsByDay: { [key: string]: { color: string }[] } = {};
   state.events.forEach((event: any) => {
@@ -78,21 +77,23 @@ const MontlyView: React.FC = () => {
   const eventsForSelectedDate = state.events.filter((event: any) =>
     isSameDay(new Date(event.start), selectedDate || new Date())
   );
-  
+
   return (
-    <AnimationWrapper>
-      <div className={`w-1/4 bg-${state.calendarColor}-100 p-6`}>
-        <div className="flex justify-between items-center">
+    <div className="flex h-screen bg-gray-50">
+      <div className="w-1/4 p-6 bg-gray-200" >
+        <div className="flex justify-between items-center " style={{ color: mainColor }}>
           <button
             onClick={() => handleMonthChange(-12)}
-            className={`text-lg text-gray-600 hover:text-${state.calendarColor}-700`}
+            style={{ color: mainColor }}
           >
             &lt;
           </button>
-          <div className={`text-xl font-bold text-${state.calendarColor}-700`}>{format(currentDate, 'yyyy')}</div>
+          <div className="text-xl font-bold" >
+            {format(currentDate, 'yyyy')}
+          </div>
           <button
             onClick={() => handleMonthChange(12)}
-            className={`text-lg text-gray-600 hover:text-${state.calendarColor}-700`}
+            style={{ color: mainColor }}
           >
             &gt;
           </button>
@@ -103,11 +104,12 @@ const MontlyView: React.FC = () => {
             return (
               <li
                 key={index}
-                className={`py-2 text-lg p-2 font-semibold cursor-pointer ${
-                  monthDate.getMonth() === currentDate.getMonth()
-                    ? `bg-${state.calendarColor}-200 rounded-md text-${state.calendarColor}-700`
-                    : `text-gray-600 hover:text-${state.calendarColor}-700`
-                }`}
+                className={`py-2 text-lg p-2 font-semibold cursor-pointer addOpacity`}
+                style={
+                    monthDate.getMonth() === currentDate.getMonth()
+                      ? { color: mainColor, opacity: 1, }
+                      : { color: secondColor }
+                  }
                 onClick={() => handleMonthClick(index)}
               >
                 {format(monthDate, 'MMMM')}
@@ -116,25 +118,44 @@ const MontlyView: React.FC = () => {
           })}
         </ul>
       </div>
-      <div className="flex-1 px-10 pt-2 relative">
-        <NavigationHeader
-          title={format(currentDate, 'MMMM yyyy')}
-          onPrev={() => handleMonthChange(-1)}
-          onNext={() => handleMonthChange(1)}
-          onToday={handleGoToToday}
-          calendarColor={state.calendarColor}
-        />
+      <div className="flex-1 p-10 relative">
+        <div className="flex justify-between items-center mb-6">
+          <div className="text-2xl font-bold" style={{ color: mainColor }}>
+            {format(currentDate, 'MMMM yyyy')}
+          </div>
+          <div className="flex items-center space-x-3">
+            <Button
+              onClick={() => handleMonthChange(-1)}
+              className="text-lg"
+              style={{ color: mainColor }}
+            >
+              &lt;
+            </Button>
+            <Button
+              onClick={() => handleMonthChange(1)}
+              className="text-lg"
+              style={{ color: mainColor }}
+            >
+              &gt;
+            </Button>
+            <Button
+              onClick={handleGoToToday}
+              className="text-lg"
+              style={{ color: mainColor }}
+            >
+              Today
+            </Button>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-7 gap-2 text-center text-lg font-semibold text-gray-500 mb-2">
+        <div className="grid grid-cols-7 gap-2 text-center text-lg font-semibold mb-2" style={{ color: "white", backgroundColor: secondColor}}>
           {days.map((day, index) => (
-            <div key={index} className={`text-white bg-${state.calendarColor}-700 mt-2`}>{day}</div>
+            <div key={index}>{day}</div>
           ))}
         </div>
 
         <div className="grid grid-cols-7 gap-2">
           {calendarDays.map((day, index) => {
-            const isToday = checkIfToday(day);
-            const isSelected = isSameDay(day, currentDate);
             const isCurrentMonth = day.getMonth() === currentDate.getMonth();
             const isAvailableDay = state.settings.availableDays.includes(day.getDay());
             const dayString = format(day, 'yyyy-MM-dd');
@@ -143,14 +164,13 @@ const MontlyView: React.FC = () => {
             return (
               <div
                 key={index}
-                className={`flex flex-col items-center justify-center h-24 cursor-pointer rounded-lg ${
-                  isSelected ? `text-white bg-${state.calendarColor}-700` : isToday ? `bg-${state.calendarColor}-700` : ''
-                } ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'} ${
+                className={`flex flex-col items-center justify-center h-24 cursor-pointer rounded-lg ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'} ${
                   isAvailableDay ? '' : 'opacity-50 pointer-events-none'
                 }`}
-                onClick={() => isAvailableDay && handleDayClick(day)} 
+                style={isToday(day) ? { color: "white", backgroundColor: mainColor} : { color: mainColor}}
+                onClick={() => isAvailableDay && handleDayClick(day)}
               >
-                <div className={"text-xl font-semibold"}>{format(day, 'd')}</div>
+                <div className="text-xl font-semibold">{format(day, 'd')}</div>
 
                 <div className="flex flex-wrap justify-center mt-1">
                   {dayEvents.slice(0, 6).map((event, idx) => (
@@ -177,8 +197,8 @@ const MontlyView: React.FC = () => {
           })}
         </div>
 
-        <div className="mt-4 text-gray-600">
-          <p>You have total of {state.events.length} tasks this month.</p>
+        <div className="mt-8 text-gray-600">
+          <p>This month you have {state.events.length} tasks to do</p>
         </div>
       </div>
       {selectedDate && (
@@ -189,8 +209,8 @@ const MontlyView: React.FC = () => {
           onClose={() => setIsModalVisible(false)}
         />
       )}
-    </AnimationWrapper>
+    </div>
   );
 };
 
-export default MontlyView;
+export default MonthlyView;

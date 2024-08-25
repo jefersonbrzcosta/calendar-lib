@@ -15,7 +15,6 @@ export interface CalendarState {
   events: CalendarEvent[];
   view: ViewType;
   currentDate: Date;
-  calendarColor: string;
   settings: any;
 }
 
