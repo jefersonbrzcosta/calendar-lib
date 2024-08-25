@@ -14,6 +14,7 @@ import {
 } from 'date-fns';
 import EventListModal from '../EventListModal';
 import { NavigationHeader } from './shared/NavigationHeader';
+import AnimationWrapper from './shared/AnimationWrapper';
 
 const MontlyView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
@@ -77,9 +78,9 @@ const MontlyView: React.FC = () => {
   const eventsForSelectedDate = state.events.filter((event: any) =>
     isSameDay(new Date(event.start), selectedDate || new Date())
   );
-
+  
   return (
-    <div className="flex h-screen bg-gray-50">
+    <AnimationWrapper>
       <div className="w-1/4 bg-indigo-100 p-6">
         <div className="flex justify-between items-center">
           <button
@@ -187,7 +188,7 @@ const MontlyView: React.FC = () => {
           onClose={() => setIsModalVisible(false)}
         />
       )}
-    </div>
+    </AnimationWrapper>
   );
 };
 

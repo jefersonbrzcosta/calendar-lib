@@ -4,7 +4,7 @@ const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
 export const TimeColumn: React.FC = () => {
   return (
-    <div className="flex flex-col space-y-0">
+    <div className="flex flex-col space-y-0 w-2/12">
       <div className="h-12"></div> {/* Placeholder for aligning hours with days */}
       {hours.map((hour, index) => (
         <div

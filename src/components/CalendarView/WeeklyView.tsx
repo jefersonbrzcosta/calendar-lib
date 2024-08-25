@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useCalendarContext } from '../../context/CalendarContext';
 import {
   format,
@@ -14,6 +13,7 @@ import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
 import { hours, mockEvents } from '../utils';
+import AnimationWrapper from './shared/AnimationWrapper';
 
 const WeeklyView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
@@ -21,7 +21,6 @@ const WeeklyView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null); // Reference to the container
-  const [weekTransition, setWeekTransition] = useState(true); // Track the week change
 
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
@@ -36,12 +35,10 @@ const WeeklyView: React.FC = () => {
   }, [currentDate]);
 
   const handleWeekChange = (offset: number) => {
-    setWeekTransition(false); // Trigger exit animation
     setTimeout(() => {
       const newDate = addWeeks(currentDate, offset);
       setCurrentDate(newDate);
       dispatch({ type: 'SET_DATE', payload: newDate });
-      setWeekTransition(true); // Trigger enter animation
     }, 300); // Duration of the exit animation
   };
 
@@ -110,25 +107,18 @@ const WeeklyView: React.FC = () => {
   );
 
   return (
-    <div className="flex bg-gray-50 w-10/12">
-      <div className="flex-1 p-10 relative" ref={containerRef}>
+    <AnimationWrapper>
+      <div className="flex-1 relative" ref={containerRef}>
         <NavigationHeader
           title={`${format(startWeek, 'MMMM d')} - ${format(endWeek, 'MMMM d, yyyy')}`}
           onPrev={() => handleWeekChange(-1)}
           onNext={() => handleWeekChange(1)}
           onToday={handleGoToToday}
         />
+        <div className='flex row'>
+              <TimeColumn />
+              <div className="grid grid-cols-7 gap-2 w-10/12">
 
-        {/* Weekly View Grid with Animation */}
-        <TransitionGroup className="relative">
-          {weekTransition && (
-            <CSSTransition
-              key={currentDate.toISOString()}
-              timeout={300}
-              classNames="fade"
-            >
-              <div className="grid grid-cols-8 gap-2">
-                <TimeColumn />
 
                 {/* Weekday Columns */}
                 {weekDays.map((day, dayIndex) => {
@@ -140,8 +130,8 @@ const WeeklyView: React.FC = () => {
                       className={`flex flex-col space-y-0 relative border-l border-gray-200 bg-white`}
                     >
                       <div
-                        className={`text-center text-sm font-semibold h-12 pt-3 ${
-                          isToday(day) && 'text-white bg-indigo-600'
+                        className={`text-center text-sm font-semibold h-12 pt-3 text-white ${
+                          isToday(day) ? ' bg-indigo-600' : 'bg-gray-400'
                         }`}
                       >
                         {format(day, 'EEE d')}
@@ -188,9 +178,7 @@ const WeeklyView: React.FC = () => {
                   );
                 })}
               </div>
-            </CSSTransition>
-          )}
-        </TransitionGroup>
+              </div>
       </div>
 
       {selectedDate && (
@@ -201,7 +189,7 @@ const WeeklyView: React.FC = () => {
           onClose={() => setIsModalVisible(false)}
         />
       )}
-    </div>
+    </AnimationWrapper>
   );
 };
 

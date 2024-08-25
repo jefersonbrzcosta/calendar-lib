@@ -17,7 +17,7 @@ export const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   onToday,
 }) => {
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex justify-between items-center mb-3">
       <div className="text-2xl font-bold text-indigo-600">{title}</div>
       <div className="flex items-center space-x-3">
         <Button

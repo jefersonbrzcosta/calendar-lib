@@ -5,6 +5,7 @@ import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
 import { hours, mockEvents } from '../utils';
+import AnimationWrapper from './shared/AnimationWrapper';
 
 
 
@@ -80,8 +81,8 @@ const DayView: React.FC = () => {
   );
 
   return (
-    <div className="flex bg-gray-50 w-10/12">
-      <div className="flex-1 p-10 relative" ref={containerRef}>
+    <AnimationWrapper>
+      <div className="flex-1 relative" ref={containerRef}>
         <NavigationHeader
           title={format(currentDate, 'd, MMMM, yyyy')}
           onPrev={() => handleDayChange(-1)}
@@ -90,14 +91,14 @@ const DayView: React.FC = () => {
         />
 
         {/* Day View Grid */}
-        <div className="grid grid-cols-[130px_1fr] gap-2">
+        <div className='flex row'>
           <TimeColumn />
-
+          <div className="grid grid-cols-1 gap-2 w-10/12">
           {/* Day Column */}
           <div className="flex flex-col space-y-0 relative border-l border-gray-200 bg-white">
             <div
               className={`text-center text-md font-semibold h-12 pt-3 ${
-                isToday(currentDate) ? 'text-white bg-indigo-600' : 'text-gray-500'
+                isToday(currentDate) ? 'text-white bg-indigo-600' : 'text-white bg-gray-400'
               }`}
             >
               {format(currentDate, 'eeee')}
@@ -141,6 +142,7 @@ const DayView: React.FC = () => {
               />
             )}
           </div>
+          </div>
         </div>
       </div>
 
@@ -152,7 +154,7 @@ const DayView: React.FC = () => {
           onClose={() => setIsModalVisible(false)}
         />
       )}
-    </div>
+    </AnimationWrapper>
   );
 };
 
