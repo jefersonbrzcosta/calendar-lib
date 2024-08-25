@@ -4,7 +4,7 @@ import { format, isSameDay, addDays, isToday } from 'date-fns';
 import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
-import { hours, mockEvents } from '../utils';
+import { getCurrentTimePosition, hours } from '../utils';
 import AnimationWrapper from './shared/AnimationWrapper';
 
 
@@ -61,12 +61,6 @@ const DayView: React.FC = () => {
     };
   };
   
-  const getCurrentTimePosition = () => {
-    const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  
-    return `${(currentMinutes * HOUR_HEIGHT) / 60}px`; // Convert current time to pixels
-  };
 
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
@@ -76,7 +70,7 @@ const DayView: React.FC = () => {
     }
   };
 
-  const eventsForSelectedDate: any = mockEvents.filter((event) =>
+  const eventsForSelectedDate: any = state.events.filter((event: any) =>
     isSameDay(new Date(event.start), currentDate)
   );
 

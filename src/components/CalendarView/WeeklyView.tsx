@@ -12,7 +12,7 @@ import {
 import EventListModal from '../EventListModal';
 import { TimeColumn } from './shared/TimeColumn';
 import { NavigationHeader } from './shared/NavigationHeader';
-import { hours, mockEvents } from '../utils';
+import { getCurrentTimePosition, hours } from '../utils';
 import AnimationWrapper from './shared/AnimationWrapper';
 
 const WeeklyView: React.FC = () => {
@@ -39,6 +39,7 @@ const WeeklyView: React.FC = () => {
       const newDate = addWeeks(currentDate, offset);
       setCurrentDate(newDate);
       dispatch({ type: 'SET_DATE', payload: newDate });
+      setCurrentDate(state.currentDate);
     }, 300); // Duration of the exit animation
   };
 
@@ -59,7 +60,7 @@ const WeeklyView: React.FC = () => {
   const weekDays = eachDayOfInterval({ start: startWeek, end: endWeek });
 
   const eventsByDay: { [key: string]: { title: string; color: string; start: string; end: string }[] } = {};
-  mockEvents.forEach((event) => {
+  state.events.forEach((event: any) => {
     const eventDate = format(new Date(event.start), 'yyyy-MM-dd');
     if (!eventsByDay[eventDate]) {
       eventsByDay[eventDate] = [];
@@ -74,25 +75,18 @@ const WeeklyView: React.FC = () => {
 
   const getEventPosition = (eventStart: Date, eventEnd: Date) => {
     const totalMinutesInDay = 24 * 60;
-    const startMinutes = eventStart.getHours() * 60 + eventStart.getMinutes();
-    const endMinutes = eventEnd.getHours() * 60 + eventEnd.getMinutes();
+    const startMinutes = eventStart.getHours() * 59 + eventStart.getMinutes() + 27;
+    const endMinutes = eventEnd.getHours() * 59 + eventEnd.getMinutes() + 27;
 
     const top = (startMinutes / totalMinutesInDay) * 100;
     const height = ((endMinutes - startMinutes) / totalMinutesInDay) * 100;
 
     return {
-      top: `${top + 1.3}%`,
+      top: `${top}%`,
       height: `${height}%`,
     };
   };
 
-  const getCurrentTimePosition = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    const minutes = now.getMinutes();
-
-    return (hour * 60 + minutes) / (24 * 60) * 100 + 1;
-  };
 
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
@@ -102,7 +96,7 @@ const WeeklyView: React.FC = () => {
     }
   };
 
-  const eventsForSelectedDate: any = mockEvents.filter((event) =>
+  const eventsForSelectedDate: any = state.events.filter((event: any) =>
     isSameDay(new Date(event.start), selectedDate || new Date())
   );
 
@@ -118,12 +112,9 @@ const WeeklyView: React.FC = () => {
         <div className='flex row'>
               <TimeColumn />
               <div className="grid grid-cols-7 gap-2 w-10/12">
-
-
                 {/* Weekday Columns */}
                 {weekDays.map((day, dayIndex) => {
                   const dayEvents = eventsByDay[format(day, 'yyyy-MM-dd')] || [];
-
                   return (
                     <div
                       key={dayIndex}
@@ -136,13 +127,19 @@ const WeeklyView: React.FC = () => {
                       >
                         {format(day, 'EEE d')}
                       </div>
+
                       {/* Time Slots */}
                       {hours.map((_, index) => (
                         <div
                           key={index}
                           className="border-t border-gray-200 h-24 cursor-pointer hover:bg-gray-100"
                           onClick={() => handleDayClick(day)}
-                        ></div>
+                        >
+                          {format(currentDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && isToday(currentDate) && <div
+                          className="absolute left-0 right-0 h-0.5 bg-red-500"
+                          style={{ top: `${getCurrentTimePosition()}%` }}
+                        />}
+                        </div>
                       ))}
 
                       {/* Render Events */}
@@ -167,13 +164,6 @@ const WeeklyView: React.FC = () => {
                         );
                       })}
 
-                      {/* Render Current Time Line */}
-                      {isToday(currentDate) && (
-                        <div
-                          className="absolute left-0 right-0 h-0.5 bg-red-500"
-                          style={{ top: `${getCurrentTimePosition()}%` }}
-                        />
-                      )}
                     </div>
                   );
                 })}

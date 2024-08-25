@@ -2,8 +2,8 @@ export interface CalendarEvent {
   id: number;
   title: string;
   description: string;
-  start: string;
-  end: string; 
+  start: string | number;
+  end: string | number; 
   location: string;
   guests: string; 
   color: string;
@@ -15,6 +15,7 @@ export interface CalendarState {
   events: CalendarEvent[];
   view: ViewType;
   currentDate: Date;
+  calendarColor: string;
   settings: any;
 }
 

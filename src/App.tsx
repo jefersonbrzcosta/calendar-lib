@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { CalendarProvider } from './context/CalendarContext';
+import { CalendarProvider, useCalendarContext } from './context/CalendarContext';
 import CalendarView from './components/CalendarView/MontlyView';
 import WeeklyView from './components/CalendarView/WeeklyView';
 import DayView from './components/CalendarView/DayView';
@@ -9,21 +8,22 @@ import { CalendarOutlined, BarsOutlined, ClockCircleOutlined } from '@ant-design
 const { TabPane } = Tabs;
 
 function App() {
-  const [activeView, setActiveView] = useState<string>('day');
 
-  const handleTabChange = (key: string) => {
-    setActiveView(key);
-  };
+  const Body = () => {
+    const { state, dispatch } = useCalendarContext();
 
-  return (
-    <CalendarProvider>
+    const handleViewChange = (view: string) => {
+      dispatch({ type: 'SET_VIEW', payload: view });
+    };
+
+    return (
       <div className="w-full flex flex-col">
         <div className="p-4 bg-white shadow-lg rounded-lg">
           {/* View Selector */}
           <Tabs
             defaultActiveKey="day"
-            activeKey={activeView}
-            onChange={handleTabChange}
+            activeKey={state.view}
+            onChange={handleViewChange}
             size="large"
             tabBarGutter={16}
             tabBarStyle={{ marginBottom: '1rem' }}
@@ -58,11 +58,18 @@ function App() {
           </Tabs>
 
           {/* Render the selected view */}
-          {activeView === 'month' && <CalendarView />}
-          {activeView === 'week' && <WeeklyView />}
-          {activeView === 'day' && <DayView />}
+          {state.view === 'month' && <CalendarView />}
+          {state.view === 'week' && <WeeklyView />}
+          {state.view === 'day' && <DayView />}
         </div>
       </div>
+    )
+
+  }
+
+  return (
+    <CalendarProvider>
+      <Body />
     </CalendarProvider>
   );
 }

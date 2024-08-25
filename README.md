@@ -89,10 +89,10 @@ This project is licensed under the MIT License.
 
 todo:
 - Fix UI constancy; - DONE
-- Check for reusable components;
-- Fix Current hours line;
-- Add motions when changing views;
-- Remove config from view, have a config file;
+- Check for reusable components - DONE;
+- Fix Current hours line - DONE;
+- Add motions when changing views - DONE;
+- Remove config from view, have a config file - DONE (check Context direct);
 - Include main color;
-- Add a place for logo, title;
+- Fix Modals (events list, add event, event details w/ remove and edit);
 - Configure mobile friendly;

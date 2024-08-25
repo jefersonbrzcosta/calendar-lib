@@ -1,5 +1,13 @@
 export const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
+export const getCurrentTimePosition = () => {
+  const now = new Date();
+  const hour = now.getHours();
+  const minutes = now.getMinutes();
+
+  return (hour * 60 + minutes) / (24 * 60) * 100 + 2;
+};
+
 
 export const mockEvents = [
   {
@@ -9,6 +17,8 @@ export const mockEvents = [
     start: new Date().setHours(9, 0, 0, 0), // Today at 9:00 AM
     end: new Date().setHours(10, 0, 0, 0), // Today at 10:00 AM
     color: '#FF5733',
+    location: 'Conference Room A',
+    guests: 'Alice, Bob, Charlie',
   },
   {
     id: 2,
@@ -17,6 +27,8 @@ export const mockEvents = [
     start: new Date().setHours(12, 0, 0, 0), // Today at 12:00 PM
     end: new Date().setHours(13, 0, 0, 0), // Today at 1:00 PM
     color: '#33A1FF',
+    location: 'Online - Zoom',
+    guests: 'Dev Team',
   },
   {
     id: 3,
@@ -25,6 +37,8 @@ export const mockEvents = [
     start: new Date().setHours(14, 0, 0, 0), // Today at 2:00 PM
     end: new Date().setHours(16, 0, 0, 0), // Today at 4:00 PM
     color: '#FFC300',
+    location: 'Downtown Cafe',
+    guests: 'Client X',
   },
   {
     id: 4,
@@ -33,5 +47,7 @@ export const mockEvents = [
     start: new Date(new Date().setDate(new Date().getDate() + 1)).setHours(15, 0, 0, 0), // Tomorrow at 3:00 PM
     end: new Date(new Date().setDate(new Date().getDate() + 1)).setHours(16, 0, 0, 0), // Tomorrow at 4:00 PM
     color: '#DAF7A6',
+    location: 'Online - Zoom',
+    guests: 'Dev Team',
   },
 ];

@@ -81,18 +81,18 @@ const MontlyView: React.FC = () => {
   
   return (
     <AnimationWrapper>
-      <div className="w-1/4 bg-indigo-100 p-6">
+      <div className={`w-1/4 bg-${state.calendarColor}-100 p-6`}>
         <div className="flex justify-between items-center">
           <button
             onClick={() => handleMonthChange(-12)}
-            className="text-lg text-gray-600 hover:text-indigo-700"
+            className={`text-lg text-gray-600 hover:text-${state.calendarColor}-700`}
           >
             &lt;
           </button>
-          <div className="text-xl font-bold text-indigo-700">{format(currentDate, 'yyyy')}</div>
+          <div className={`text-xl font-bold text-${state.calendarColor}-700`}>{format(currentDate, 'yyyy')}</div>
           <button
             onClick={() => handleMonthChange(12)}
-            className="text-lg text-gray-600 hover:text-indigo-700"
+            className={`text-lg text-gray-600 hover:text-${state.calendarColor}-700`}
           >
             &gt;
           </button>
@@ -105,8 +105,8 @@ const MontlyView: React.FC = () => {
                 key={index}
                 className={`py-2 text-lg p-2 font-semibold cursor-pointer ${
                   monthDate.getMonth() === currentDate.getMonth()
-                    ? 'text-indigo-700 bg-indigo-200 rounded-md'
-                    : 'text-gray-600 hover:text-indigo-700'
+                    ? `bg-${state.calendarColor}-200 rounded-md text-${state.calendarColor}-700`
+                    : `text-gray-600 hover:text-${state.calendarColor}-700`
                 }`}
                 onClick={() => handleMonthClick(index)}
               >
@@ -122,6 +122,7 @@ const MontlyView: React.FC = () => {
           onPrev={() => handleMonthChange(-1)}
           onNext={() => handleMonthChange(1)}
           onToday={handleGoToToday}
+          calendarColor={state.calendarColor}
         />
 
         <div className="grid grid-cols-7 gap-2 text-center text-lg font-semibold text-gray-500 mb-2">
@@ -139,11 +140,13 @@ const MontlyView: React.FC = () => {
             const dayString = format(day, 'yyyy-MM-dd');
             const dayEvents = eventsByDay[dayString] || [];
 
+            `text-white bg-${state.calendarColor}`
+
             return (
               <div
                 key={index}
                 className={`flex flex-col items-center justify-center h-24 cursor-pointer rounded-lg ${
-                  isSelected ? 'bg-indigo-700 text-white' : isToday ? 'bg-indigo-100' : ''
+                  isSelected ? `text-white bg-${state.calendarColor}` : isToday ? `bg-${state.calendarColor}-100` : ''
                 } ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'} ${
                   isAvailableDay ? '' : 'opacity-50 pointer-events-none'
                 }`}
