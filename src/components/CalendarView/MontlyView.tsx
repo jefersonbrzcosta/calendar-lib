@@ -116,7 +116,7 @@ const MontlyView: React.FC = () => {
           })}
         </ul>
       </div>
-      <div className="flex-1 p-10 relative">
+      <div className="flex-1 px-10 pt-2 relative">
         <NavigationHeader
           title={format(currentDate, 'MMMM yyyy')}
           onPrev={() => handleMonthChange(-1)}
@@ -127,7 +127,7 @@ const MontlyView: React.FC = () => {
 
         <div className="grid grid-cols-7 gap-2 text-center text-lg font-semibold text-gray-500 mb-2">
           {days.map((day, index) => (
-            <div key={index}>{day}</div>
+            <div key={index} className={`text-white bg-${state.calendarColor}-700 mt-2`}>{day}</div>
           ))}
         </div>
 
@@ -140,19 +140,17 @@ const MontlyView: React.FC = () => {
             const dayString = format(day, 'yyyy-MM-dd');
             const dayEvents = eventsByDay[dayString] || [];
 
-            `text-white bg-${state.calendarColor}`
-
             return (
               <div
                 key={index}
                 className={`flex flex-col items-center justify-center h-24 cursor-pointer rounded-lg ${
-                  isSelected ? `text-white bg-${state.calendarColor}` : isToday ? `bg-${state.calendarColor}-100` : ''
+                  isSelected ? `text-white bg-${state.calendarColor}-700` : isToday ? `bg-${state.calendarColor}-700` : ''
                 } ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'} ${
                   isAvailableDay ? '' : 'opacity-50 pointer-events-none'
                 }`}
                 onClick={() => isAvailableDay && handleDayClick(day)} 
               >
-                <div className="text-xl font-semibold">{format(day, 'd')}</div>
+                <div className={"text-xl font-semibold"}>{format(day, 'd')}</div>
 
                 <div className="flex flex-wrap justify-center mt-1">
                   {dayEvents.slice(0, 6).map((event, idx) => (
@@ -179,8 +177,8 @@ const MontlyView: React.FC = () => {
           })}
         </div>
 
-        <div className="mt-8 text-gray-600">
-          <p>This month you have {state.events.length} tasks to do</p>
+        <div className="mt-4 text-gray-600">
+          <p>You have total of {state.events.length} tasks this month.</p>
         </div>
       </div>
       {selectedDate && (
