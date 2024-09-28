@@ -94,13 +94,11 @@ todo:
 - Remove config from view, have a config file - DONE (check Context direct);
 - Include main color - DONE;
 - Include second color - DONE;
-- Fix Modals (events list, add event, event details w/ remove and edit);
-- Fix onclick on the days... Each view needs to take care different;
-- Configure mobile friendly;
+- Configure mobile friendly; - DONE
+
+- Prepare to receive onClick functions for each view;
+- Make sure we show only available hours (in the available hours, another prop to ask (showOutofBusinessHours: boolean));
+- Prepare to receive custom styles to overwrite current;
 - Prepare for export as a lib (accept configuration object);
 
-Bugs: Edit event not working...
-Delete event not closing the modal;
-
-- Create Button component shared;
-- Create the UI for events components as shared;
+- Unit testing

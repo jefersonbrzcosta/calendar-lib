@@ -1,57 +1,58 @@
-import { useReducer, createContext, useContext, ReactNode } from 'react';
-import { CalendarState, CalendarAction } from '../types/calendar';
-import { mockEvents } from '../components/utils';
+import {
+  useReducer,
+  createContext,
+  useContext,
+  ReactNode,
+  Dispatch,
+} from "react";
+import { CalendarState, CalendarAction } from "../types/calendar";
 
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
+const CalendarContext = createContext<
+  | {
+      state: CalendarState;
+      dispatch: Dispatch<CalendarAction>;
+    }
+  | undefined
+>(undefined);
 
-const initialState: CalendarState = {
-  events: mockEvents,
-  view: 'month',
-  currentDate: new Date(),
-  settings: {
-    mainColor: "blue",
-    secondColor: "gray",
-    availableDays: [1, 2, 3, 4, 5, 6, 7],
-    startHour: '08:00',
-    endHour: '18:00',
-  },
-};
-
-const calendarReducer = (state: CalendarState, action: CalendarAction): CalendarState => {
+const calendarReducer = (
+  state: CalendarState,
+  action: CalendarAction
+): CalendarState => {
   switch (action.type) {
-    case 'ADD_EVENT':
+    case "ADD_EVENT":
       return { ...state, events: [...state.events, action.payload] };
-    case 'REMOVE_EVENT':
-      return { ...state, events: state.events.filter(event => event.id !== action.payload) };
-    case 'UPDATE_EVENT':
+    case "REMOVE_EVENT":
       return {
         ...state,
-        events: state.events.map(event =>
+        events: state.events.filter((event) => event.id !== action.payload),
+      };
+    case "UPDATE_EVENT":
+      return {
+        ...state,
+        events: state.events.map((event) =>
           event.id === action.payload.id ? action.payload : event
         ),
       };
-    case 'SET_VIEW':
+    case "SET_VIEW":
       return { ...state, view: action.payload };
-    case 'SET_DATE':
+    case "SET_DATE":
       return { ...state, currentDate: action.payload };
-    case 'SET_SETTINGS':
+    case "SET_SETTINGS":
       return { ...state, settings: action.payload };
     default:
       return state;
   }
 };
 
-const CalendarContext = createContext<any>({
-  state: initialState,
-  dispatch: () => null,
-});
-
-export const CalendarProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(calendarReducer, {
-    ...initialState,
-    settings: { ...initialState.settings },
-  });
+export const CalendarProvider = ({
+  children,
+  initialState,
+}: {
+  children: ReactNode;
+  initialState: CalendarState;
+}) => {
+  const [state, dispatch] = useReducer(calendarReducer, initialState);
 
   return (
     <CalendarContext.Provider value={{ state, dispatch }}>
@@ -61,5 +62,13 @@ export const CalendarProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useCalendarContext = () => {
-  return useContext(CalendarContext);
+  const context = useContext(CalendarContext);
+
+  if (!context) {
+    throw new Error(
+      "useCalendarContext must be used within a CalendarProvider"
+    );
+  }
+
+  return context;
 };
