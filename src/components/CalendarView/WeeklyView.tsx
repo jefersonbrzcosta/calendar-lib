@@ -12,17 +12,22 @@ import {
 import EventListModal from "../EventListModal";
 import { TimeColumn } from "./shared/TimeColumn";
 import { NavigationHeader } from "./shared/NavigationHeader";
-import { getCurrentTimePosition, getEventPosition, hours } from "../utils";
+import {
+  getCurrentTimePosition,
+  getEventPosition,
+  hours,
+  isScreenMobile,
+} from "../utils";
 import AnimationWrapper from "./shared/AnimationWrapper";
 
 const WeeklyView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
   const [currentDate, setCurrentDate] = useState(state.currentDate);
-  const [selectedEvents, setSelectedEvents] = useState<any[]>([]); // Store selected events
+  const [selectedEvents, setSelectedEvents] = useState<any[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null); // Reference to the container
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const { mainColor, secondColor } = state.settings; // Fetch mainColor from context
+  const { mainColor, secondColor } = state.settings;
 
   useEffect(() => {
     if (state.currentDate.toDateString() !== currentDate.toDateString()) {
@@ -95,7 +100,7 @@ const WeeklyView: React.FC = () => {
         />
         <div className="flex row">
           <TimeColumn />
-          <div className="grid grid-cols-7 gap-2 w-10/12">
+          <div className="grid grid-cols-7 gap-0.5 w-full sm:w-10/12">
             {/* Weekday Columns */}
             {weekDays.map((day, dayIndex) => {
               const dayEvents = state.events.filter((event: any) =>
@@ -105,14 +110,14 @@ const WeeklyView: React.FC = () => {
               return (
                 <div
                   key={dayIndex}
-                  className={`flex flex-col space-y-0 relative border-l border-gray-500 bg-white`}
+                  className={`flex flex-col space-y-0 relative border-l`}
                   style={{
                     borderLeft:
                       dayIndex !== 0 ? `1px solid ${secondColor}` : "",
                   }}
                 >
                   <div
-                    className={`text-center text-sm font-semibold h-12 pt-3 text-white`}
+                    className={`text-center text-xs sm:text-base h-12 text-white`}
                     style={{
                       backgroundColor: isToday(day) ? mainColor : secondColor, // Use mainColor here
                     }}
@@ -149,7 +154,7 @@ const WeeklyView: React.FC = () => {
                     return (
                       <div
                         key={eventIndex}
-                        className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2 cursor-pointer"
+                        className="absolute w-full text-white sm:rounded-lg sm:pl-1"
                         style={{
                           backgroundColor: event.color,
                           top: position.top,
@@ -157,10 +162,14 @@ const WeeklyView: React.FC = () => {
                         }}
                         onClick={() => handleEventClick(event)}
                       >
-                        <div className="text-sm font-bold">
-                          {format(eventStart, "h:mm a")}
+                        {!isScreenMobile() && (
+                          <div className="text-xs sm:text-sm font-bold">
+                            {format(eventStart, "h:mm a")}
+                          </div>
+                        )}
+                        <div className="sm:text-sm pl-1 sm:pl-0 text-left text-[9px] text-wrap">
+                          {event.title}
                         </div>
-                        <div className="text-xs">{event.title}</div>
                       </div>
                     );
                   })}

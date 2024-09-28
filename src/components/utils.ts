@@ -22,6 +22,10 @@ export const getEventPosition = (eventStart: Date, eventEnd: Date) => {
   };
 };
 
+export const isScreenMobile = () => {
+  return window.innerWidth < 450;
+};
+
 export const mockEvents = [
   {
     id: 1,

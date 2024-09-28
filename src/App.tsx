@@ -36,7 +36,7 @@ function App() {
         }}
       >
         <div className="w-full flex flex-col">
-          <div className="px-4 bg-white shadow-lg rounded-lg">
+          <div className="px-2 sm:px-4 bg-white shadow-lg rounded-lg">
             <Tabs
               defaultActiveKey="month"
               activeKey={state.view}

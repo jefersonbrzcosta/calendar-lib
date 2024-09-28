@@ -4,18 +4,17 @@ This is a highly customizable calendar library built for React applications. It 
 
 ## Features
 
-- **Multiple Views**: The calendar offers three different views: 
+- **Multiple Views**: The calendar offers three different views:
   - **Monthly View**: Displays the entire month with events indicated on specific dates.
   - **Weekly View**: Shows the days of the week with hour slots to plan events.
   - **Daily View**: Provides a detailed view of a single day with hourly breakdowns.
-  
 - **Event Management**: Users can create, edit, and delete events across all views. Events are visually represented in their respective time slots and dates.
-  
 - **Custom Styling**: This library uses **Tailwind CSS** for styling, allowing for easy customization and consistency across all components.
 
 - **Navigation**: Users can easily navigate between days, weeks, and months using the intuitive UI navigation controls.
 
 - **Event Object Structure**: The event object follows the structure below:
+
   ```javascript
   {
     id: number,
@@ -63,7 +62,7 @@ This will start the development server and launch the app in your default browse
 To use the calendar in your React application, import the desired views (`DayView`, `WeeklyView`, `MontlyView`) and include them in your component:
 
 ```jsx
-import { DayView, WeeklyView, MontlyView } from 'react-calendar-library';
+import { DayView, WeeklyView, MontlyView } from "react-calendar-library";
 
 function App() {
   return (
@@ -86,8 +85,8 @@ You can customize the look and feel of the calendar by overriding the Tailwind C
 
 This project is licensed under the MIT License.
 
-
 todo:
+
 - Fix UI constancy; - DONE
 - Check for reusable components - DONE;
 - Fix Current hours line - DONE;
@@ -100,7 +99,8 @@ todo:
 - Configure mobile friendly;
 - Prepare for export as a lib (accept configuration object);
 
-
 Bugs: Edit event not working...
 Delete event not closing the modal;
 
+- Create Button component shared;
+- Create the UI for events components as shared;
