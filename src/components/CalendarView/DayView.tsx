@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useCalendarContext } from '../../context/CalendarContext';
-import { format, isSameDay, addDays, isToday } from 'date-fns';
-import EventListModal from '../EventListModal';
-import { TimeColumn } from './shared/TimeColumn';
-import { NavigationHeader } from './shared/NavigationHeader';
-import { getCurrentTimePosition, getEventPosition, hours } from '../utils';
-import AnimationWrapper from './shared/AnimationWrapper';
+import React, { useState, useEffect, useRef } from "react";
+import { useCalendarContext } from "../../context/CalendarContext";
+import { format, isSameDay, addDays, isToday } from "date-fns";
+import EventListModal from "../EventListModal";
+import { TimeColumn } from "./shared/TimeColumn";
+import { NavigationHeader } from "./shared/NavigationHeader";
+import { getCurrentTimePosition, getEventPosition, hours } from "../utils";
+import AnimationWrapper from "./shared/AnimationWrapper";
 
 const DayView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
@@ -31,13 +31,13 @@ const DayView: React.FC = () => {
   const handleDayChange = (offset: number) => {
     const newDate = addDays(currentDate, offset);
     setCurrentDate(newDate);
-    dispatch({ type: 'SET_DATE', payload: newDate });
+    dispatch({ type: "SET_DATE", payload: newDate });
   };
 
   const handleGoToToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    dispatch({ type: 'SET_DATE', payload: today });
+    dispatch({ type: "SET_DATE", payload: today });
     scrollToCurrentHour();
   };
 
@@ -49,7 +49,9 @@ const DayView: React.FC = () => {
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
-      const scrollPosition = ((now.getHours() * 60 + now.getMinutes()) / 1440) * containerRef.current.scrollHeight;
+      const scrollPosition =
+        ((now.getHours() * 60 + now.getMinutes()) / 1440) *
+        containerRef.current.scrollHeight;
       containerRef.current.scrollTop = scrollPosition;
     }
   };
@@ -60,9 +62,9 @@ const DayView: React.FC = () => {
 
   return (
     <AnimationWrapper>
-      <div className="flex-1 relative" ref={containerRef}>
+      <div className="flex-1 relative text-sm sm:text-lg" ref={containerRef}>
         <NavigationHeader
-          title={format(currentDate, 'd, MMMM, yyyy')}
+          title={format(currentDate, "d, MMMM, yyyy")}
           onPrev={() => handleDayChange(-1)}
           onNext={() => handleDayChange(1)}
           onToday={handleGoToToday}
@@ -78,11 +80,11 @@ const DayView: React.FC = () => {
               <div
                 className="text-center text-md font-semibold h-12 pt-3"
                 style={{
-                  backgroundColor: isToday(currentDate) ? mainColor : '#a0aec0', // Use mainColor
-                  color: 'white',
+                  backgroundColor: isToday(currentDate) ? mainColor : "#a0aec0", // Use mainColor
+                  color: "white",
                 }}
               >
-                {format(currentDate, 'eeee')}
+                {format(currentDate, "eeee")}
               </div>
               {/* Time Slots */}
               {hours.map((_, index) => (
@@ -109,7 +111,9 @@ const DayView: React.FC = () => {
                       height: position.height,
                     }}
                   >
-                    <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
+                    <div className="text-xs font-bold sm:text-sm flex justify-center align-middle">
+                      {format(eventStart, "h:mm a")}
+                    </div>
                     <div className="text-xs">{event.title}</div>
                   </div>
                 );

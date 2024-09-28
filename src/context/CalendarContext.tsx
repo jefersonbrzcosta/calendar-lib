@@ -11,11 +11,10 @@ const initialState: CalendarState = {
   currentDate: new Date(),
   settings: {
     mainColor: "blue",
-    secondColor: "lightblue",
+    secondColor: "gray",
     availableDays: [1, 2, 3, 4, 5, 6, 7],
     startHour: '08:00',
     endHour: '18:00',
-    allowOverlapping: true,
   },
 };
 

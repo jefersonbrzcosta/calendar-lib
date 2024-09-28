@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useCalendarContext } from '../../context/CalendarContext';
+import React, { useState, useEffect, useRef } from "react";
+import { useCalendarContext } from "../../context/CalendarContext";
 import {
   format,
   startOfWeek,
@@ -8,17 +8,17 @@ import {
   addWeeks,
   isSameDay,
   isToday,
-} from 'date-fns';
-import EventListModal from '../EventListModal';
-import { TimeColumn } from './shared/TimeColumn';
-import { NavigationHeader } from './shared/NavigationHeader';
-import { getCurrentTimePosition, getEventPosition, hours } from '../utils';
-import AnimationWrapper from './shared/AnimationWrapper';
+} from "date-fns";
+import EventListModal from "../EventListModal";
+import { TimeColumn } from "./shared/TimeColumn";
+import { NavigationHeader } from "./shared/NavigationHeader";
+import { getCurrentTimePosition, getEventPosition, hours } from "../utils";
+import AnimationWrapper from "./shared/AnimationWrapper";
 
 const WeeklyView: React.FC = () => {
   const { state, dispatch } = useCalendarContext();
   const [currentDate, setCurrentDate] = useState(state.currentDate);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvents, setSelectedEvents] = useState<any[]>([]); // Store selected events
   const [isModalVisible, setIsModalVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null); // Reference to the container
 
@@ -40,20 +40,29 @@ const WeeklyView: React.FC = () => {
     setTimeout(() => {
       const newDate = addWeeks(currentDate, offset);
       setCurrentDate(newDate);
-      dispatch({ type: 'SET_DATE', payload: newDate });
-      setCurrentDate(state.currentDate);
-    }, 300); // Duration of the exit animation
+      dispatch({ type: "SET_DATE", payload: newDate });
+    }, 300);
   };
 
   const handleGoToToday = () => {
     const today = new Date();
     setCurrentDate(today);
-    dispatch({ type: 'SET_DATE', payload: today });
+    dispatch({ type: "SET_DATE", payload: today });
     scrollToCurrentHour();
   };
 
-  const handleDayClick = (day: Date) => {
-    setSelectedDate(day);
+  const handleTimeSlotClick = (day: Date, hour: number) => {
+    const eventsAtHour = state.events.filter((event: any) => {
+      const eventStart = new Date(event.start);
+      return isSameDay(eventStart, day) && eventStart.getHours() === hour;
+    });
+
+    setSelectedEvents(eventsAtHour);
+    setIsModalVisible(true);
+  };
+
+  const handleEventClick = (event: any) => {
+    setSelectedEvents([event]); // Show only the clicked event in the modal
     setIsModalVisible(true);
   };
 
@@ -61,37 +70,24 @@ const WeeklyView: React.FC = () => {
   const endWeek = endOfWeek(currentDate);
   const weekDays = eachDayOfInterval({ start: startWeek, end: endWeek });
 
-  const eventsByDay: { [key: string]: { title: string; color: string; start: string; end: string }[] } = {};
-  state.events.forEach((event: any) => {
-    const eventDate = format(new Date(event.start), 'yyyy-MM-dd');
-    if (!eventsByDay[eventDate]) {
-      eventsByDay[eventDate] = [];
-    }
-    eventsByDay[eventDate].push({
-      title: event.title,
-      color: event.color,
-      start: new Date(event.start).toISOString(),
-      end: new Date(event.end).toISOString(),
-    });
-  });
-
   const scrollToCurrentHour = () => {
     if (containerRef.current) {
       const now = new Date();
-      const scrollPosition = ((now.getHours() * 60 + now.getMinutes()) / 1440) * containerRef.current.scrollHeight;
+      const scrollPosition =
+        ((now.getHours() * 60 + now.getMinutes()) / 1440) *
+        containerRef.current.scrollHeight;
       containerRef.current.scrollTop = scrollPosition;
     }
   };
-
-  const eventsForSelectedDate: any = state.events.filter((event: any) =>
-    isSameDay(new Date(event.start), selectedDate || new Date())
-  );
 
   return (
     <AnimationWrapper>
       <div className="flex-1 relative" ref={containerRef}>
         <NavigationHeader
-          title={`${format(startWeek, 'MMMM d')} - ${format(endWeek, 'MMMM d, yyyy')}`}
+          title={`${format(startWeek, "MMMM d")} - ${format(
+            endWeek,
+            "MMMM d, yyyy"
+          )}`}
           onPrev={() => handleWeekChange(-1)}
           onNext={() => handleWeekChange(1)}
           onToday={handleGoToToday}
@@ -102,13 +98,17 @@ const WeeklyView: React.FC = () => {
           <div className="grid grid-cols-7 gap-2 w-10/12">
             {/* Weekday Columns */}
             {weekDays.map((day, dayIndex) => {
-              const dayEvents = eventsByDay[format(day, 'yyyy-MM-dd')] || [];
+              const dayEvents = state.events.filter((event: any) =>
+                isSameDay(new Date(event.start), day)
+              );
+
               return (
                 <div
                   key={dayIndex}
                   className={`flex flex-col space-y-0 relative border-l border-gray-500 bg-white`}
                   style={{
-                    borderLeft: dayIndex !== 0 ? `1px solid ${secondColor}` : ""
+                    borderLeft:
+                      dayIndex !== 0 ? `1px solid ${secondColor}` : "",
                   }}
                 >
                   <div
@@ -117,27 +117,31 @@ const WeeklyView: React.FC = () => {
                       backgroundColor: isToday(day) ? mainColor : secondColor, // Use mainColor here
                     }}
                   >
-                    {format(day, 'EEE d')}
+                    {format(day, "EEE d")}
                   </div>
 
                   {/* Time Slots */}
-                  {hours.map((_, index) => (
+                  {hours.map((hour, index) => (
                     <div
                       key={index}
                       className="border-t border-gray-200 h-12 cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleDayClick(day)}
+                      onClick={() =>
+                        handleTimeSlotClick(day, parseInt(hour.split(":")[0]))
+                      }
                     >
-                      {format(currentDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') && isToday(currentDate) && (
-                        <div
-                          className="absolute left-0 right-0 h-0.5 bg-red-500"
-                          style={{ top: `${getCurrentTimePosition()}%` }}
-                        />
-                      )}
+                      {format(currentDate, "yyyy-MM-dd") ===
+                        format(day, "yyyy-MM-dd") &&
+                        isToday(currentDate) && (
+                          <div
+                            className="absolute left-0 right-0 h-0.5 bg-red-500"
+                            style={{ top: `${getCurrentTimePosition()}%` }}
+                          />
+                        )}
                     </div>
                   ))}
 
                   {/* Render Events */}
-                  {dayEvents.map((event, eventIndex) => {
+                  {dayEvents.map((event: any, eventIndex: any) => {
                     const eventStart = new Date(event.start);
                     const eventEnd = new Date(event.end);
                     const position = getEventPosition(eventStart, eventEnd);
@@ -145,14 +149,17 @@ const WeeklyView: React.FC = () => {
                     return (
                       <div
                         key={eventIndex}
-                        className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2"
+                        className="absolute left-0 right-0 mx-2 rounded-lg shadow text-white px-2 cursor-pointer"
                         style={{
                           backgroundColor: event.color,
                           top: position.top,
                           height: position.height,
                         }}
+                        onClick={() => handleEventClick(event)}
                       >
-                        <div className="text-sm font-bold">{format(eventStart, 'h:mm a')}</div>
+                        <div className="text-sm font-bold">
+                          {format(eventStart, "h:mm a")}
+                        </div>
                         <div className="text-xs">{event.title}</div>
                       </div>
                     );
@@ -164,11 +171,12 @@ const WeeklyView: React.FC = () => {
         </div>
       </div>
 
-      {selectedDate && (
+      {/* Render the Event List Modal */}
+      {selectedEvents.length > 0 && (
         <EventListModal
           visible={isModalVisible}
-          events={eventsForSelectedDate}
-          date={selectedDate}
+          events={selectedEvents ?? []}
+          date={selectedEvents[0]?.start}
           onClose={() => setIsModalVisible(false)}
         />
       )}

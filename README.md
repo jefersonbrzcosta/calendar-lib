@@ -93,6 +93,14 @@ todo:
 - Fix Current hours line - DONE;
 - Add motions when changing views - DONE;
 - Remove config from view, have a config file - DONE (check Context direct);
-- Include main color;
+- Include main color - DONE;
+- Include second color - DONE;
 - Fix Modals (events list, add event, event details w/ remove and edit);
+- Fix onclick on the days... Each view needs to take care different;
 - Configure mobile friendly;
+- Prepare for export as a lib (accept configuration object);
+
+
+Bugs: Edit event not working...
+Delete event not closing the modal;
+
